@@ -1,0 +1,13 @@
+.classpath
+.project
+.settings
+.checkstyle
+.idea
+bin
+target
+/build
+/lib
+*.class
+.idea/
+hs_err_pid*
+replay_pid*
