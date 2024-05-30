@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
@@ -16,18 +17,28 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class PrismaTest {
 
     @Test
-    public void test606060() {
+    public void test606060() throws IOException {
         doTest("prismatic-rule-60-60-60.txt", 22.0, 60.0, 60.0, 60.0, 5.0e-4, 1.2e-3);
     }
 
     @Test
-    public void test454590() {
+    public void test454590() throws IOException {
         doTest("prismatic-rule-45-45-90.txt", 40.0, 45.0, 45.0, 90.0, 7.6e-4, 5.0e-3);
     }
 
     @Test
-    public void test456075() {
+    public void test456075() throws IOException {
         doTest("prismatic-rule-45-60-75.txt", 60.0, 45.0, 60.0, 75.0, 4.4e-4, 1.0e-3);
+    }
+
+    @Test
+    public void testInexistentFile() {
+        try {
+            new Prisma(findPath("prismatic-rule-60-60-60.txt").resolve("inexistent"));
+            Assertions.fail("an exception should have been thrown");
+        } catch (IOException ioe) {
+            Assertions.assertInstanceOf(FileNotFoundException.class, ioe);
+        }
     }
 
     @Test
@@ -51,35 +62,36 @@ public class PrismaTest {
     }
 
     @Test
-    public void testMainError() {
+    public void testMainError() throws IOException {
         final AtomicInteger returnStatus = new AtomicInteger(0);
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         Prisma.mainWithCustomizedErrorHandling(new PrintStream(baos), returnStatus::getAndSet, new String[0]);
         Assertions.assertEquals(1, returnStatus.get());
-        Assertions.assertEquals("usage: java org.spaceroots.prima.Prisma [--residuals] measurements.txt",
+        Assertions.assertEquals("usage: java org.spaceroots.prima.Prisma [--show-evaluations] [--residuals] measurements.txt",
                                 baos.toString().trim());
     }
 
     @Test
-    public void testMain() {
-        Prisma.main(new String[] { "-residuals", findPath("prismatic-rule-45-45-90.txt").toString() });
+    public void testMainwithoutOptions() throws IOException {
+        Prisma.main(new String[] { findPath("prismatic-rule-45-60-75.txt").toString() });
+    }
+
+    @Test
+    public void testMainWithOptions() throws IOException {
+        Prisma.main(new String[] { "--show-evaluations", "--residuals", findPath("prismatic-rule-45-45-90.txt").toString() });
     }
 
     private void doTest(final String name, final double r,
                         final double alpha1Deg, final double alpha2Deg, final double alpha3Deg,
-                        final double tolR, final double tolApha) {
-        try {
-            final Path input  = findPath(name);
-            Prisma prisma = new Prisma(input);
-            prisma.assessGeometry();
-            Triangle triangle = prisma.getAssessedGeometry();
-            Assertions.assertEquals(r,         triangle.getR(),                          tolR);
-            Assertions.assertEquals(alpha1Deg, FastMath.toDegrees(triangle.getAlpha1()), tolApha);
-            Assertions.assertEquals(alpha2Deg, FastMath.toDegrees(triangle.getAlpha2()), tolApha);
-            Assertions.assertEquals(alpha3Deg, FastMath.toDegrees(triangle.getAlpha3()), tolApha);
-        } catch (IOException ioe) {
-            Assertions.fail(ioe.getLocalizedMessage());
-        }
+                        final double tolR, final double tolApha) throws IOException {
+        final Path input = findPath(name);
+        Prisma prisma = new Prisma(input);
+        prisma.assessGeometry(false);
+        Triangle triangle = prisma.getAssessedGeometry();
+        Assertions.assertEquals(r, triangle.getR(), tolR);
+        Assertions.assertEquals(alpha1Deg, FastMath.toDegrees(triangle.getAlpha1()), tolApha);
+        Assertions.assertEquals(alpha2Deg, FastMath.toDegrees(triangle.getAlpha2()), tolApha);
+        Assertions.assertEquals(alpha3Deg, FastMath.toDegrees(triangle.getAlpha3()), tolApha);
     }
 
     private static Path findPath(final String name)

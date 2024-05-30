@@ -23,9 +23,11 @@ import org.hipparchus.linear.ArrayRealVector;
 import org.hipparchus.linear.RealMatrix;
 import org.hipparchus.linear.RealVector;
 import org.hipparchus.optim.nonlinear.vector.leastsquares.MultivariateJacobianFunction;
+import org.hipparchus.util.FastMath;
 import org.hipparchus.util.Pair;
 
 import java.util.List;
+import java.util.Locale;
 
 /** Model least squares problem model.
  * @author Luc Maisonobe
@@ -35,16 +37,39 @@ public class Model implements MultivariateJacobianFunction {
     /** Observed measurements. */
     private final List<ObservedMeasurement> observed;
 
+    /** Flag for showing evaluations. */
+    private final boolean showEvaluations;
+
+    /** Evaluations counter. */
+    private int evaluationsCounter;
+
     /** Simple constructor.
      * @param observed observed measurements
+     * @param showEvaluations if true, Levenberg-Marquardt evaluations are shown
      */
-    public Model(final List<ObservedMeasurement> observed) {
-        this.observed = observed;
-    }
+    public Model(final List<ObservedMeasurement> observed,
+                 final boolean showEvaluations) {
+        this.observed           = observed;
+        this.showEvaluations    = showEvaluations;
+        this.evaluationsCounter = 0;
+        if (showEvaluations) {
+            System.out.format(Locale.US, "evaluation     R       α₁      α₂      α₃%n");
+        }
+     }
 
     /** {@inheritDoc} */
     @Override
     public Pair<RealVector, RealMatrix> value(final RealVector point) {
+
+        ++evaluationsCounter;
+        if (showEvaluations) {
+            System.out.format(Locale.US, "    %2d      %7.3f  %6.3f  %6.3f  %6.3f%n",
+                              evaluationsCounter,
+                              point.getEntry(0),
+                              FastMath.toDegrees(point.getEntry(1)),
+                              FastMath.toDegrees(point.getEntry(2)),
+                              FastMath.toDegrees(FastMath.PI - point.getEntry(1) - point.getEntry(2)));
+        }
 
         // create current estimate of the triangle
         final Triangle triangle = new Triangle(point.getEntry(0), point.getEntry(1), point.getEntry(2));

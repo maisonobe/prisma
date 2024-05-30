@@ -50,7 +50,7 @@ public class Prisma {
 
     /** Simple constructor.
      * @param input path of mesurements
-     * @exception IOException if measurements cannot be read
+     * @exception IOException if input file cannot be read
      */
     Prisma(final Path input) throws IOException {
 
@@ -77,9 +77,10 @@ public class Prisma {
 
     }
 
-    /** Fit prismatic rule geometry.
+    /** Assess prismatic rule geometry.
+     * @param showEvaluations if true, Levenberg-Marquardt evaluations are shown
      */
-    void assessGeometry() {
+    void assessGeometry(final boolean showEvaluations) {
 
         // prepare least squares problem
         double sum = 0;
@@ -93,9 +94,9 @@ public class Prisma {
         // build least squares problem
         final LeastSquaresProblem problem =
             new LeastSquaresBuilder().
-                maxIterations(1000).
-                maxEvaluations(1000).
-                model(new Model(observed)).
+                maxIterations(20).
+                maxEvaluations(20).
+                model(new Model(observed, showEvaluations)).
                 target(target).
                 start(new double[] { sum / observed.size(), FastMath.PI / 3, FastMath.PI / 3 }).
                 build();
@@ -116,8 +117,9 @@ public class Prisma {
     /**
      * Program entry point.
      * @param args program arguments (path to measurement file)
+     * @exception IOException if input file cannot be read
      */
-    public static void main(final String[] args) {
+    public static void main(final String[] args) throws IOException {
         mainWithCustomizedErrorHandling(System.err, System::exit, args);
     }
 
@@ -126,63 +128,62 @@ public class Prisma {
      * @param errorOutput        error output
      * @param errorStatusHandler handler for error status
      * @param args program arguments (path to measurement file)
+     * @exception IOException if input file cannot be read
      */
-    static void mainWithCustomizedErrorHandling(final PrintStream errorOutput, final IntConsumer errorStatusHandler,
-                                                final String[] args) {
-        try
-        {
+    static void mainWithCustomizedErrorHandling(final PrintStream errorOutput,
+                                                final IntConsumer errorStatusHandler,
+                                                final String[] args)
+        throws IOException {
 
-            // parse program arguments
-            boolean displayResiduals = false;
-            String  measurementsName = null;
-            for (final String arg : args) {
-                if (arg.equals("-residuals")) {
-                    displayResiduals = true;
-                } else {
-                    measurementsName = arg;
-                }
+        // parse program arguments
+        boolean showEvaluations = false;
+        boolean displayResiduals = false;
+        String measurementsName = null;
+        for (final String arg : args) {
+            if (arg.equals("--show-evaluations")) {
+                showEvaluations = true;
+            } else if (arg.equals("--residuals")) {
+                displayResiduals = true;
+            } else {
+                measurementsName = arg;
             }
-            if (measurementsName == null) {
-                errorOutput.append("usage: java org.spaceroots.prima.Prisma [--residuals] measurements.txt");
-                errorStatusHandler.accept(1);
-                return;
-            }
-
-            // read input file
-            final FileSystem fs     = FileSystems.getDefault();
-            final Path       cwd    = fs.getPath(System.getProperty("user.dir"));
-            final Prisma     prisma = new Prisma(cwd.resolve(fs.getPath(measurementsName)).normalize());
-
-            // assess geometrical properties
-            prisma.assessGeometry();
-            final Triangle triangle = prisma.getAssessedGeometry();
-            final RealVector sigma = prisma.optimum.getSigma(1.0e-10);
-
-            // display results
-            System.out.format(Locale.US, "R = %.6f (±%.6f), α₁ = %.3f (±%.3f), α₂ = %.3f (±%.3f) ⇒ α₃ ≈ %.3f%nRMS = %.6f%n",
-                              triangle.getR(),
-                              sigma.getEntry(0),
-                              FastMath.toDegrees(triangle.getAlpha1()),
-                              FastMath.toDegrees(sigma.getEntry(1)),
-                              FastMath.toDegrees(triangle.getAlpha2()),
-                              FastMath.toDegrees(sigma.getEntry(2)),
-                              FastMath.toDegrees(triangle.getAlpha3()),
-                              prisma.optimum.getRMS());
-
-            if (displayResiduals) {
-                System.out.format(Locale.US, "%n# index top  d     h   observed  theoretical residual%n");
-                for (int i = 0; i < prisma.observed.size(); i++) {
-                    final ObservedMeasurement oi = prisma.observed.get(i);
-                    final double t = triangle.theoreticalMeasurement(oi).getValue();
-                    System.out.format(Locale.US, "   %2d    %s %4.1f %4.1f %10.6f %10.6f %9.6f%n",
-                                      i, oi.getTop(), oi.getD(), oi.getH(), oi.getM(), t, oi.getM() - t);
-                }
-            }
-
-        } catch (IOException e) {
-            errorOutput.append(e.getLocalizedMessage());
-            errorStatusHandler.accept(1);
         }
+        if (measurementsName == null) {
+            errorOutput.append("usage: java org.spaceroots.prima.Prisma [--show-evaluations] [--residuals] measurements.txt");
+            errorStatusHandler.accept(1);
+            return;
+        }
+
+        // read input file
+        final FileSystem fs = FileSystems.getDefault();
+        final Path cwd = fs.getPath(System.getProperty("user.dir"));
+        final Prisma prisma = new Prisma(cwd.resolve(fs.getPath(measurementsName)).normalize());
+
+        // assess geometrical properties
+        prisma.assessGeometry(showEvaluations);
+        final Triangle triangle = prisma.getAssessedGeometry();
+        final RealVector sigma = prisma.optimum.getSigma(1.0e-10);
+
+        // display results
+        if (showEvaluations) {
+            System.out.format(Locale.US, "%n");
+        }
+        System.out.format(Locale.US, "R = %.3f (±%.3f), α₁ = %.3f (±%.3f), α₂ = %.3f (±%.3f) ⇒ α₃ ≈ %.3f%nRMS = %.3f%n",
+                          triangle.getR(), sigma.getEntry(0), FastMath.toDegrees(triangle.getAlpha1()),
+                          FastMath.toDegrees(sigma.getEntry(1)), FastMath.toDegrees(triangle.getAlpha2()),
+                          FastMath.toDegrees(sigma.getEntry(2)), FastMath.toDegrees(triangle.getAlpha3()),
+                          prisma.optimum.getRMS());
+
+        if (displayResiduals) {
+            System.out.format(Locale.US, "%n index top    d    h     observed  theoretical residual%n");
+            for (int i = 0; i < prisma.observed.size(); i++) {
+                final ObservedMeasurement oi = prisma.observed.get(i);
+                final double t = triangle.theoreticalMeasurement(oi).getValue();
+                System.out.format(Locale.US, "  %2d    %s  %4.1f %4.1f %10.3f %10.3f  %9.3f%n", i, oi.getTop(),
+                                  oi.getD(), oi.getH(), oi.getM(), t, oi.getM() - t);
+            }
+        }
+
     }
 
 }

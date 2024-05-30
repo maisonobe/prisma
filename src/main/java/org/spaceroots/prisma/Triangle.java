@@ -21,7 +21,7 @@ import org.hipparchus.analysis.differentiation.Gradient;
 import org.hipparchus.util.FastMath;
 import org.hipparchus.util.FieldSinCos;
 
-/** Container for one triangle model.
+/** Container for one triangle model for the cross-section of a prismatic rule.
  * @author Luc Maisonobe
  */
 public class Triangle {
@@ -108,13 +108,9 @@ public class Triangle {
                 alphaA = g1;
                 alphaB = g3;
                 break;
-            case A3:
+            default:
                 alphaA = g1;
                 alphaB = g2;
-                break;
-            default:
-                // this should never happen
-                throw new RuntimeException("impossible case, please contact program author");
         }
 
         // compute theoretical measurement
@@ -134,9 +130,9 @@ public class Triangle {
     }
 
     /** Compute cylindrical pin offset with respect to bottom side.
-     * @param alpha angle at bottom on pin side
+     * @param alpha angle at bottom on cylindrical pin side
      * @param d cylindrical pin diameter
-     * @param h space block height
+     * @param h spacer block height
      * @return cylindrical pin offset with respect to bottom side
      */
     private Gradient pinOffset(final Gradient alpha, final double d, final double h) {
