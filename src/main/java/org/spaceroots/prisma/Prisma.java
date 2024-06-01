@@ -60,6 +60,11 @@ public class Prisma {
              InputStreamReader isr = new InputStreamReader(fis);
              BufferedReader    br  = new BufferedReader(isr)) {
             for (String line = br.readLine(); line != null; line = br.readLine()) {
+                line = line.trim();
+                if (line.startsWith("#")) {
+                    // skip commented-out lines
+                    continue;
+                }
                 final String[] fields = line.split("\\s+");
                 if (fields.length != 4) {
                     throw new RuntimeException("invalid measurement: " + line);
@@ -175,11 +180,11 @@ public class Prisma {
                           prisma.optimum.getRMS());
 
         if (displayResiduals) {
-            System.out.format(Locale.US, "%n index top    d    h     observed  theoretical residual%n");
+            System.out.format(Locale.US, "%n index top    d     h      observed  theoretical residual%n");
             for (int i = 0; i < prisma.observed.size(); i++) {
                 final ObservedMeasurement oi = prisma.observed.get(i);
                 final double t = triangle.theoreticalMeasurement(oi).getValue();
-                System.out.format(Locale.US, "  %2d    %s  %4.1f %4.1f %10.3f %10.3f  %9.3f%n", i, oi.getTop(),
+                System.out.format(Locale.US, "  %2d    %s  %5.2f %5.2f %10.3f %10.3f  %9.3f%n", i, oi.getTop(),
                                   oi.getD(), oi.getH(), oi.getM(), t, oi.getM() - t);
             }
         }

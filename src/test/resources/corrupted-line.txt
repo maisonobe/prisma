@@ -4,6 +4,7 @@ A1 12.0  4.0  75.533
 A2 12.0  4.0  75.507
 A2 12.0  4.0  75.539
 A2 12.0  4.0  75.498
+# the following line should trigger a parse error, it misses one field
 A3 12.0  4.0
 A3 12.0  4.0  75.511
 A3 12.0  4.0  75.516

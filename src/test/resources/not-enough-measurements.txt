@@ -1,2 +1,3 @@
+# this file as not enough measurement, it should trigger an error
 A1  8.0  8.0  86.247
 A2  8.0  8.0  86.221
