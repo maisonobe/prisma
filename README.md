@@ -81,7 +81,7 @@ $\alpha_1$ and $\alpha_2$, on the cylindrical pin diameter $d_k$ and on
 the spacer block height $h_k$. Using several different diameters $d_k$ and
 several different heights $h_k$ therefore leads to several different
 measurements $m_k$. The third angle $\alpha_3$ can be deduced from the
-two other ones because the sum of the thress angles of a triangle is always
+two other ones because the sum of the three angles of a triangle is always
 180° (or $\pi$ radians).
 
 In order to be able to perform the measurements $m_k$, a few
