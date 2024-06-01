@@ -137,7 +137,7 @@ public class Triangle {
      */
     private Gradient pinOffset(final Gradient alpha, final double d, final double h) {
         final FieldSinCos<Gradient> sc = alpha.sinCos();
-        return sc.sin().add(1).multiply(d).add(sc.cos().multiply(d + 2 * h)).
+        return sc.sin().add(1).multiply(d).subtract(sc.cos().multiply(d + 2 * h)).
                divide(sc.sin().multiply(2));
     }
 
