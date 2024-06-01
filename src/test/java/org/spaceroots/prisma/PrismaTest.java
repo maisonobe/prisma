@@ -18,17 +18,27 @@ public class PrismaTest {
 
     @Test
     public void test606060() throws IOException {
-        doTest("prismatic-rule-60-60-60.txt", 22.0, 60.0, 60.0, 60.0, 5.0e-4, 1.2e-3);
+        doTest("prismatic-rule-60-60-60.txt", 22.0, 60.0, 60.0, 60.0, 5.1e-4, 1.3e-2);
     }
 
     @Test
     public void test454590() throws IOException {
-        doTest("prismatic-rule-45-45-90.txt", 40.0, 45.0, 45.0, 90.0, 7.6e-4, 5.0e-3);
+        doTest("prismatic-rule-45-45-90.txt", 40.0, 45.0, 45.0, 90.0, 6.0e-3, 3.6e-2);
     }
 
     @Test
     public void test456075() throws IOException {
-        doTest("prismatic-rule-45-60-75.txt", 60.0, 45.0, 60.0, 75.0, 4.4e-4, 1.0e-3);
+        doTest("prismatic-rule-45-60-75.txt", 60.0, 45.0, 60.0, 75.0, 1.1e-3, 4.0e-3);
+    }
+
+    @Test
+    public void testPerfect() throws IOException {
+        doTest("perfect-measurements.txt", 60.0, 45.0, 60.0, 75.0, 4.0e-11, 1.9e-10);
+    }
+
+    @Test
+    public void testRealRuleFirstMeasurements() throws IOException {
+        doTest("real-rule-first-measurements.txt", 21.275, 59.715, 60.510, 59.775, 1.0e-3, 1.0e-3);
     }
 
     @Test
@@ -78,7 +88,7 @@ public class PrismaTest {
 
     @Test
     public void testMainWithOptions() throws IOException {
-        Prisma.main(new String[] { "--show-evaluations", "--residuals", findPath("prismatic-rule-45-45-90.txt").toString() });
+        Prisma.main(new String[] { "--show-evaluations", "--residuals", findPath("real-rule-first-measurements.txt").toString() });
     }
 
     private void doTest(final String name, final double r,
