@@ -104,19 +104,15 @@ public class PrismaTest {
         Assertions.assertEquals(alpha3Deg, FastMath.toDegrees(triangle.getAlpha3()), tolApha);
     }
 
-    private static Path findPath(final String name)
-    {
+    private static Path findPath(final String name) {
         Path path = null;
-        try
-        {
+        try {
             final URL url = Thread.currentThread().getContextClassLoader().getResource(name);
-            if (url == null)
-            {
+            if (url == null) {
                 Assertions.fail(name);
             }
             path = Paths.get(url.toURI());
-        } catch (URISyntaxException use)
-        {
+        } catch (URISyntaxException use) {
             Assertions.fail(use.getLocalizedMessage());
         }
         return path;
