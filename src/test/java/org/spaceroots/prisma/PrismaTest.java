@@ -87,8 +87,13 @@ public class PrismaTest {
     }
 
     @Test
-    public void testMainWithOptions() throws IOException {
+    public void testMainWithOptionsFirst() throws IOException {
         Prisma.main(new String[] { "--show-evaluations", "--residuals", findPath("real-rule-first-measurements.txt").toString() });
+    }
+
+    @Test
+    public void testMainWithOptionsSecond() throws IOException {
+        Prisma.main(new String[] { "--show-evaluations", "--residuals", findPath("real-rule-second-measurements.txt").toString() });
     }
 
     private void doTest(final String name, final double r,
