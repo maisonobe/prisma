@@ -47,7 +47,8 @@ This sketch was created using
 [Geogebra](https://www.geogebra.org/). The source file is included at
 the top of this repository, it has sliders to play with the height
 $h_k$, the diameter $d_k$, the radius $R$ and the two angles
-$\alpha_1$ and $\alpha_2$.
+$\alpha_1$ and $\alpha_2$ (choosing these two angles enforces the
+value of the third angle $\alpha_3$).
 
 In order to be checked, the prismatic rule must be laid on a reference
 flat (typically a  surface plate). Two cylindrical gauge pins of known
@@ -56,7 +57,7 @@ of height $h_k$ (hatched in black) in such a way they touch the sides of
 the prismatic rule with tangential contact points $T_{A_2,A_3}$
 and $T_{A_1,A_3}$. The operators use a caliper or a micrometer to perform
 measurement $m_k$ as the horizontal  distance between the external points
-$C_1$ et $C_2$ of  the cylindrical pins. It is of course possible to not
+$C_1$ and $C_2$ of  the cylindrical pins. It is of course possible to not
 use any spacer  blocks at all, which corresponds to have $h_k=0$ in all
 equations below.
 
@@ -77,8 +78,8 @@ The expression of the measurement $m_k$ is:
 $$m_k=2R\sin(\alpha_1+\alpha_2)+\frac{d_k(1+\sin\alpha_1)-(d_k+2h_k)\cos\alpha_1}{2\sin\alpha_1}+\frac{d_k(1+\sin\alpha_2)-(d_k+2h_k)\cos\alpha_2}{2\sin\alpha_2}$$
 
 This measurement depends only on the radius $R$, on the two angles
-$\alpha_1$ and $\alpha_2$, on the cylindrical pin diameter $d_k$ and on
-the spacer block height $h_k$. Using several different diameters $d_k$ and
+$\alpha_1$ and $\alpha_2$, on the cylindrical pins diameter $d_k$ and on
+the spacer blocks height $h_k$. Using several different diameters $d_k$ and
 several different heights $h_k$ therefore leads to several different
 measurements $m_k$. The third angle $\alpha_3$ can be deduced from the
 two other ones because the sum of the three angles of a triangle is always
@@ -87,14 +88,15 @@ two other ones because the sum of the three angles of a triangle is always
 In order to be able to perform the measurements $m_k$, a few
 conditions must be fulfilled. Given some spacer block height $h_k$, the
 diameter $d_k$ of the cylindrical pin must not be too small, otherwise
-the spacer block would come too close to the base of the triangle and
-eventually collide with it. On the other hand having a too large
-diameter $d_k$ would imply the contact point between the cylindrical
-pin and the triangle goes upwards and finally exceeds the height of
-the triangle, so there are no tangential contacts anymore. For a given
-spacer block height $h_k$, there are therefore both a lower and an upper
-limit on the diameter $d_k$ of the cylindrical pins that can be
-used. This can be seen clearly by playing with the sliders in the
+either the spacer block would come too close to the base of the triangle and
+eventually collide with it or the pin would fall between the slanted surface
+and the spacer block and would not be laid on the top of the space block. On
+the other hand having a too large diameter $d_k$ would imply the contact
+point between the cylindrical pin and the triangle goes upwards and finally
+exceeds the height of the triangle, so there would be no tangential contacts
+anymore. For a given spacer block height $h_k$, there are therefore both a
+lower and an upper limit on the diameter $d_k$ of the cylindrical pins that
+can be used. This can be seen clearly by playing with the sliders in the
 Geogebra application.
 
 The conditions for the cylindrical pin on the right hand side are:
@@ -133,7 +135,7 @@ measurements errors.
 
 The measurements $m_k$ are provided as a simple text file with each
 line giving the name of the top vertex ($A_1$, $A_2$ or $A_3$), the
-diameter $d_k$ of the pin, the height $h_k$ of the spacer block, and the
+diameter $d_k$ of the pins, the height $h_k$ of the spacer blocks, and the
 value $m_k$ that was measured with these settings. The program solves
 the least squares problem and provides both the geometrical
 characteristics $R$, $\alpha_1$, $\alpha_2$, and $\alpha_3$ with an
