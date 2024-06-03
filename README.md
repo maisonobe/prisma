@@ -90,7 +90,7 @@ conditions must be fulfilled. Given some spacer block height $h_k$, the
 diameter $d_k$ of the cylindrical pin must not be too small, otherwise
 either the spacer block would come too close to the base of the triangle and
 eventually collide with it or the pin would fall between the slanted surface
-and the spacer block and would not be laid on the top of the space block. On
+and the spacer block and would not be laid on the top of the spacer block. On
 the other hand having a too large diameter $d_k$ would imply the contact
 point between the cylindrical pin and the triangle goes upwards and finally
 exceeds the height of the triangle, so there would be no tangential contacts
