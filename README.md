@@ -136,7 +136,7 @@ the $(A_2,A_3)$  side on the surface plate and a third series should be
 performed with the $(A_3,A_1)$ side on the surface plate. Using multiple
 independent series leverages measurements errors.
 
-The measurements $m_k$ are provided to the prisma programm as a simple text
+The measurements $m_k$ are provided to the prisma program as a simple text
 file with each  line giving the name of the top vertex ($A_1$, $A_2$ or
 $A_3$), the diameter $d_k$ of the pins, the height $h_k$ of the spacer
 blocks, and the value $m_k$ that was measured with these settings. The
