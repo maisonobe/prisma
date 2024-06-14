@@ -81,7 +81,9 @@ This measurement depends only on the radius $R$, on the two angles
 $\alpha_1$ and $\alpha_2$, on the cylindrical pins diameter $d_k$ and on
 the spacer blocks height $h_k$. Using several different diameters $d_k$ and
 several different heights $h_k$ therefore leads to several different
-measurements $m_k$. The third angle $\alpha_3$ can be deduced from the
+measurements $m_k$. The goal of the prisma program is to almost invert the
+equation above, i.e. to extract $\alpha_1$, $\alpha_2$ and $R$ given a set
+of measurements $m_k$. The third angle $\alpha_3$ can be deduced from the
 two other ones because the sum of the three angles of a triangle is always
 180° (or $\pi$ radians).
 
@@ -95,11 +97,11 @@ the other hand having a too large diameter $d_k$ would imply the contact
 point between the cylindrical pin and the triangle goes upwards and finally
 exceeds the height of the triangle, so there would be no tangential contacts
 anymore. For a given spacer block height $h_k$, there are therefore both a
-lower and an upper limit on the diameter $d_k$ of the cylindrical pins that
-can be used. This can be seen clearly by playing with the sliders in the
+lower limit and an upper limit on the diameter $d_k$ of the cylindrical pins
+that  can be used. This can be seen clearly by playing with the sliders in the
 Geogebra application.
 
-The conditions for the cylindrical pin on the right hand side are:
+The conditions to be fulfilled for the cylindrical pin on the right hand side are:
 $$h_k\frac{2\cos\alpha_2}{1-\cos\alpha_2} < d_k < \frac{4R\sin\alpha_1\sin\alpha_2-2h_k}{1-\cos\alpha_2}$$
 
 Similar conditions apply to the cylindrical pin on the left hand side,
@@ -127,17 +129,18 @@ along the sides of the triangle. If a sufficient number of
 measurements is taken, then it is theoretically possible to retrieve
 the full geometry (i.e. $R$, $\alpha_1$, $\alpha_2$ and $\alpha_3$)
 without moving the rule at all. It is however recommended to perform
-three series of measurements, a first series with the $(A_1,A_2)$ side
-on the surface plate as shown, a second series with the $(A_2,A_3)$
-side on the surface plate and a third series with the $(A_3,A_1)$ side
-on the surface plate. Having multiple independent series leverages
-measurements errors.
+three series of measurements, turning the prismatic rule around between
+each series. A first series should be performed with the $(A_1,A_2)$ side
+on the surface plate as shown, a second series should be performed with
+the $(A_2,A_3)$  side on the surface plate and a third series should be
+performed with the $(A_3,A_1)$ side on the surface plate. Using multiple
+independent series leverages measurements errors.
 
-The measurements $m_k$ are provided as a simple text file with each
-line giving the name of the top vertex ($A_1$, $A_2$ or $A_3$), the
-diameter $d_k$ of the pins, the height $h_k$ of the spacer blocks, and the
-value $m_k$ that was measured with these settings. The program solves
-the least squares problem and provides both the geometrical
+The measurements $m_k$ are provided to the prisma programm as a simple text
+file with each  line giving the name of the top vertex ($A_1$, $A_2$ or
+$A_3$), the diameter $d_k$ of the pins, the height $h_k$ of the spacer
+blocks, and the value $m_k$ that was measured with these settings. The
+program solves the least squares problem and provides both the geometrical
 characteristics $R$, $\alpha_1$, $\alpha_2$, and $\alpha_3$ with an
 estimate of the accuracy of these values as well as the global RMS (Root
 Mean Square). It also optionally provides the residuals $m_k -\tilde{m}_k$
