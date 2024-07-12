@@ -37,8 +37,28 @@ public class PrismaTest {
     }
 
     @Test
-    public void testRealRuleFirstMeasurements() throws IOException {
-        doTest("real-rule-first-measurements.txt", 21.275, 59.715, 60.510, 59.775, 1.0e-3, 1.0e-3);
+    public void testRealRuleFirstMeasurementsA() throws IOException {
+        doTest("real-rule-first-measurements-endpoint-A.txt", 21.275, 59.715, 60.510, 59.775, 1.0e-3, 1.0e-3);
+    }
+
+    @Test
+    public void testRealRuleFirstMeasurementsB() throws IOException {
+        doTest("real-rule-first-measurements-endpoint-B.txt", 21.229, 59.599, 60.621, 59.780, 1.0e-3, 1.0e-3);
+    }
+
+    @Test
+    public void testRealRuleSecondMeasurementsA() throws IOException {
+        doTest("real-rule-second-measurements-endpoint-A.txt", 20.808, 60.540, 59.815, 59.645, 1.0e-3, 1.0e-3);
+    }
+
+    @Test
+    public void testRealRuleSecondMeasurementsB() throws IOException {
+        doTest("real-rule-second-measurements-endpoint-B.txt", 21.007, 60.529, 60.027, 59.444, 1.0e-3, 1.0e-3);
+    }
+
+    @Test
+    public void testRealRuleSecondMeasurementsMiddle() throws IOException {
+        doTest("real-rule-second-measurements-middle.txt", 20.900, 60.219, 60.313, 59.468, 1.0e-3, 1.0e-3);
     }
 
     @Test
@@ -88,12 +108,14 @@ public class PrismaTest {
 
     @Test
     public void testMainWithOptionsFirst() throws IOException {
-        Prisma.main(new String[] { "--show-evaluations", "--residuals", findPath("real-rule-first-measurements.txt").toString() });
+        Prisma.main(new String[] { "--show-evaluations", "--residuals", findPath(
+            "real-rule-first-measurements-endpoint-A.txt").toString() });
     }
 
     @Test
     public void testMainWithOptionsSecond() throws IOException {
-        Prisma.main(new String[] { "--show-evaluations", "--residuals", findPath("real-rule-second-measurements.txt").toString() });
+        Prisma.main(new String[] { "--show-evaluations", "--residuals", findPath(
+            "real-rule-second-measurements-middle.txt").toString() });
     }
 
     private void doTest(final String name, final double r,
