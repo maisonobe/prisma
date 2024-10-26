@@ -62,6 +62,46 @@ public class PrismaTest {
     }
 
     @Test
+    public void testRealRuleThirdMeasurementsA() throws IOException {
+        doTest("real-rule-third-measurements-endpoint-A.txt", 20.615, 60.317, 59.834, 59.848, 1.0e-3, 1.0e-3);
+    }
+
+    @Test
+    public void testRealRuleThirdMeasurementsB() throws IOException {
+        doTest("real-rule-third-measurements-endpoint-B.txt", 20.734, 60.293, 59.870, 59.837, 1.0e-3, 1.0e-3);
+    }
+
+    @Test
+    public void testRealRuleFourthMeasurementsA() throws IOException {
+        doTest("real-rule-fourth-measurements-endpoint-A.txt", 20.368, 60.163, 59.908, 59.928, 1.0e-3, 1.0e-3);
+    }
+
+    @Test
+    public void testRealRuleFourthMeasurementsB() throws IOException {
+        doTest("real-rule-fourth-measurements-endpoint-B.txt", 20.286, 60.151, 59.932, 59.918, 1.0e-3, 1.0e-3);
+    }
+
+    @Test
+    public void testRealRuleFifthMeasurementsA() throws IOException {
+        doTest("real-rule-fifth-measurements-endpoint-A.txt", 20.105, 60.058, 60.015, 59.928, 1.0e-3, 1.0e-3);
+    }
+
+    @Test
+    public void testRealRuleFifthMeasurementsB() throws IOException {
+        doTest("real-rule-fifth-measurements-endpoint-B.txt", 20.135, 60.036, 60.025, 59.939, 1.0e-3, 1.0e-3);
+    }
+
+    @Test
+    public void testRealRuleSixthMeasurementsA() throws IOException {
+        doTest("real-rule-sixth-measurements-endpoint-A.txt", 20.048, 60.054, 60.002, 59.945, 1.0e-3, 1.0e-3);
+    }
+
+    @Test
+    public void testRealRuleSixthMeasurementsB() throws IOException {
+        doTest("real-rule-sixth-measurements-endpoint-B.txt", 20.079, 60.011, 60.030, 59.958, 1.0e-3, 1.0e-3);
+    }
+
+    @Test
     public void testInexistentFile() {
         try {
             new Prisma(findPath("prismatic-rule-60-60-60.txt").resolve("inexistent"));
@@ -97,7 +137,7 @@ public class PrismaTest {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         Prisma.mainWithCustomizedErrorHandling(new PrintStream(baos), returnStatus::getAndSet, new String[0]);
         Assertions.assertEquals(1, returnStatus.get());
-        Assertions.assertEquals("usage: java org.spaceroots.prima.Prisma [--show-evaluations] [--residuals] measurements.txt",
+        Assertions.assertEquals("usage: java org.spaceroots.prima.Prisma [--show-evaluations] [--residuals] [--plot] measurements.txt",
                                 baos.toString().trim());
     }
 
@@ -107,15 +147,19 @@ public class PrismaTest {
     }
 
     @Test
-    public void testMainWithOptionsFirst() throws IOException {
-        Prisma.main(new String[] { "--show-evaluations", "--residuals", findPath(
-            "real-rule-first-measurements-endpoint-A.txt").toString() });
+    public void testMainWithOptionsSixthA() throws IOException {
+        Prisma.main(new String[] {
+            "--show-evaluations", "--residuals", "--plot",
+            findPath("real-rule-sixth-measurements-endpoint-A.txt").toString()
+        });
     }
 
     @Test
-    public void testMainWithOptionsSecond() throws IOException {
-        Prisma.main(new String[] { "--show-evaluations", "--residuals", findPath(
-            "real-rule-second-measurements-middle.txt").toString() });
+    public void testMainWithOptionsSixthB() throws IOException {
+        Prisma.main(new String[] {
+            "--show-evaluations", "--residuals", "--plot",
+            findPath("real-rule-sixth-measurements-endpoint-B.txt").toString()
+        });
     }
 
     private void doTest(final String name, final double r,

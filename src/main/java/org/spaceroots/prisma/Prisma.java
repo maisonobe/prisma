@@ -29,12 +29,16 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.function.IntConsumer;
 
 /** Tool for assessing a prismatic rule geometry.
@@ -69,7 +73,11 @@ public class Prisma {
                 if (fields.length != 4) {
                     throw new RuntimeException("invalid measurement: " + line);
                 }
-                observed.add(new ObservedMeasurement(Vertex.valueOf(fields[0]),
+
+                // replace unicode subscript characters
+                final String vertexField = fields[0].replace('₁', '1').replace('₂', '2').replace('₃', '3');
+
+                observed.add(new ObservedMeasurement(Vertex.valueOf(vertexField),
                                                      Double.parseDouble(fields[1]),
                                                      Double.parseDouble(fields[2]),
                                                      Double.parseDouble(fields[3])));
@@ -143,18 +151,26 @@ public class Prisma {
         // parse program arguments
         boolean showEvaluations = false;
         boolean displayResiduals = false;
+        boolean plot = false;
         String measurementsName = null;
         for (final String arg : args) {
-            if (arg.equals("--show-evaluations")) {
-                showEvaluations = true;
-            } else if (arg.equals("--residuals")) {
-                displayResiduals = true;
-            } else {
-                measurementsName = arg;
+            switch (arg) {
+                case "--show-evaluations":
+                    showEvaluations = true;
+                    break;
+                case "--residuals":
+                    displayResiduals = true;
+                    break;
+                case "--plot":
+                    plot = true;
+                    break;
+                default:
+                    measurementsName = arg;
+                    break;
             }
         }
         if (measurementsName == null) {
-            errorOutput.append("usage: java org.spaceroots.prima.Prisma [--show-evaluations] [--residuals] measurements.txt");
+            errorOutput.append("usage: java org.spaceroots.prima.Prisma [--show-evaluations] [--residuals] [--plot] measurements.txt");
             errorStatusHandler.accept(1);
             return;
         }
@@ -173,7 +189,7 @@ public class Prisma {
         if (showEvaluations) {
             System.out.format(Locale.US, "%n");
         }
-        System.out.format(Locale.US, "R = %.3f (±%.3f), α₁ = %.3f (±%.3f), α₂ = %.3f (±%.3f) ⇒ α₃ ≈ %.3f%nRMS = %.3f%n",
+        System.out.format(Locale.US, "R = %.3f (±%.3f), α₁ = %.4f (±%.4f), α₂ = %.4f (±%.4f) ⇒ α₃ ≈ %.4f%nRMS = %.4f%n",
                           triangle.getR(), sigma.getEntry(0), FastMath.toDegrees(triangle.getAlpha1()),
                           FastMath.toDegrees(sigma.getEntry(1)), FastMath.toDegrees(triangle.getAlpha2()),
                           FastMath.toDegrees(sigma.getEntry(2)), FastMath.toDegrees(triangle.getAlpha3()),
@@ -186,6 +202,39 @@ public class Prisma {
                 final double t = triangle.theoreticalMeasurement(oi).getValue();
                 System.out.format(Locale.US, "  %2d    %s  %5.2f %5.2f %10.3f %10.3f  %9.3f%n", i, oi.getTop(),
                                   oi.getD(), oi.getH(), oi.getM(), t, oi.getM() - t);
+            }
+        }
+
+        if (plot) {
+            final SortedSet<Residual> faceA1A2 = new TreeSet<>(Comparator.comparingDouble(Residual::getLocation));
+            final SortedSet<Residual> faceA2A3 = new TreeSet<>(Comparator.comparingDouble(Residual::getLocation));
+            final SortedSet<Residual> faceA3A1 = new TreeSet<>(Comparator.comparingDouble(Residual::getLocation));
+            prisma.observed.forEach(o -> triangle.distributeResiduals(o, faceA1A2, faceA2A3, faceA3A1));
+            final ProcessBuilder pb = new ProcessBuilder("gnuplot").
+                            redirectOutput(ProcessBuilder.Redirect.INHERIT).
+                            redirectError(ProcessBuilder.Redirect.INHERIT);
+            pb.environment().remove("XDG_SESSION_TYPE");
+            final Process gnuplot = pb.start();
+            try (PrintStream out = new PrintStream(gnuplot.getOutputStream(), false, StandardCharsets.UTF_8.name())) {
+                final String output = measurementsName.substring(0, measurementsName.lastIndexOf('.')) + ".png";
+                out.format(Locale.US, "set terminal pngcairo size %d, %d%n", 1000, 1000);
+                out.format(Locale.US, "set output '%s'%n", output);
+                out.format(Locale.US, "set xlabel 'distance to first vertex (mm)'%n");
+                out.format(Locale.US, "set ylabel 'residual (mm)'%n");
+                out.format(Locale.US, "set title '%s'%n", "residuals along prismatic rule faces");
+                out.format(Locale.US, "$a1a2 <<EOD%n");
+                faceA1A2.forEach(r -> out.format(Locale.US, "%.6f %.6f%n", r.getLocation(), r.getResidual()));
+                out.format(Locale.US, "EOD%n");
+                out.format(Locale.US, "$a2a3 <<EOD%n");
+                faceA2A3.forEach(r -> out.format(Locale.US, "%.6f %.6f%n", r.getLocation(), r.getResidual()));
+                out.format(Locale.US, "EOD%n");
+                out.format(Locale.US, "$a3a1 <<EOD%n");
+                faceA3A1.forEach(r -> out.format(Locale.US, "%.6f %.6f%n", r.getLocation(), r.getResidual()));
+                out.format(Locale.US, "EOD%n");
+                out.format(Locale.US, "plot $a1a2 using 1:2 with linespoints dt 3 pt 5 title 'face A₁-A₂', \\%n");
+                out.format(Locale.US, "     $a2a3 using 1:2 with linespoints dt 3 pt 7 title 'face A₂-A₃', \\%n");
+                out.format(Locale.US, "     $a3a1 using 1:2 with linespoints dt 3 pt 9 title 'face A₃-A₁'%n");
+                System.out.format(Locale.US, "plot written to %s%n", output);
             }
         }
 

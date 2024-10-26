@@ -53,7 +53,7 @@ public class Model implements MultivariateJacobianFunction {
         this.showEvaluations    = showEvaluations;
         this.evaluationsCounter = 0;
         if (showEvaluations) {
-            System.out.format(Locale.US, "evaluation     R       α₁      α₂      α₃%n");
+            System.out.format(Locale.US, "evaluation     R        α₁       α₂       α₃%n");
         }
      }
 
@@ -63,7 +63,7 @@ public class Model implements MultivariateJacobianFunction {
 
         ++evaluationsCounter;
         if (showEvaluations) {
-            System.out.format(Locale.US, "    %2d      %7.3f  %6.3f  %6.3f  %6.3f%n",
+            System.out.format(Locale.US, "    %2d      %7.3f  %6.4f  %6.4f  %6.4f%n",
                               evaluationsCounter,
                               point.getEntry(0),
                               FastMath.toDegrees(point.getEntry(1)),

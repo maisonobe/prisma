@@ -20,6 +20,9 @@ package org.spaceroots.prisma;
 import org.hipparchus.analysis.differentiation.Gradient;
 import org.hipparchus.util.FastMath;
 import org.hipparchus.util.FieldSinCos;
+import org.hipparchus.util.SinCos;
+
+import java.util.SortedSet;
 
 /** Container for one triangle model for the cross-section of a prismatic rule.
  * @author Luc Maisonobe
@@ -114,18 +117,54 @@ public class Triangle {
         }
 
         // compute theoretical measurement
-        return bottomLength(alphaA, alphaB).
+        return sideLength(alphaA, alphaB).
                add(pinOffset(alphaA, observed.getD(), observed.getH())).
                add(pinOffset(alphaB, observed.getD(), observed.getH()));
 
     }
 
-    /** Compute length of bottom side.
-     * @param alphaA first angle at bottom
-     * @param alphaB second angle at bottom
-     * @return length of bottom side
+    /** Distribute residuals along faces.
+     * @param observed observed measurement
+     * @param faceA1A2 holder where to put residuals along the A₁-A₂ face
+     * @param faceA2A3 holder where to put residuals along the A₂-A₃ face
+     * @param faceA3A1 holder where to put residuals along the A₃-A₁ face
      */
-    private Gradient bottomLength(final Gradient alphaA, final Gradient alphaB) {
+    public void distributeResiduals(final ObservedMeasurement observed,
+                                    final SortedSet<Residual> faceA1A2,
+                                    final SortedSet<Residual> faceA2A3,
+                                    final SortedSet<Residual> faceA3A1) {
+
+        // extract observed values
+        final double d = observed.getD();
+        final double h = observed.getH();
+        final double m = observed.getM();
+
+        // compute residual
+        final double residual = m - theoreticalMeasurement(observed).getValue();
+
+        // distribute residual along the two slanted faces
+        switch (observed.getTop()) {
+            case A1:
+                faceA1A2.add(new Residual(sideLength(g1, g2).getValue() - contactLocation(g2, d, h), residual));
+                faceA3A1.add(new Residual(contactLocation(g3, d, h), residual));
+                break;
+            case A2:
+                faceA1A2.add(new Residual(contactLocation(g1, d, h), residual));
+                faceA2A3.add(new Residual(sideLength(g2, g3).getValue() - contactLocation(g3, d, h), residual));
+                break;
+            default:
+                faceA2A3.add(new Residual(contactLocation(g2, d, h), residual));
+                faceA3A1.add(new Residual(sideLength(g3, g1).getValue() - contactLocation(g1, d, h), residual));
+        }
+
+    }
+
+    /** Compute length of one side.
+     * @param alphaA angle at first vertex
+     * @param alphaB angle at second vertex
+     * @return length of side between the two vertices
+     */
+    private Gradient sideLength(final Gradient alphaA, final Gradient alphaB) {
         return gR.multiply(2).multiply(alphaA.add(alphaB).sin());
     }
 
@@ -139,6 +178,17 @@ public class Triangle {
         final FieldSinCos<Gradient> sc = alpha.sinCos();
         return sc.sin().add(1).multiply(d).subtract(sc.cos().multiply(d + 2 * h)).
                divide(sc.sin().multiply(2));
+    }
+
+    /** Compute location of contact point with respect to bottom vertex.
+     * @param alpha angle at bottom on cylindrical pin side
+     * @param d cylindrical pin diameter
+     * @param h spacer block height
+     * @return location of contact point with respect to bottom vertex
+     */
+    private double contactLocation(final Gradient alpha, final double d, final double h) {
+        final SinCos sc = FastMath.sinCos(alpha.getValue());
+        return (h + 0.5 * d * (1 - sc.cos())) / sc.sin();
     }
 
 }
