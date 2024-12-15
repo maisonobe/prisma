@@ -145,6 +145,16 @@ public class PrismaTest {
     }
 
     @Test
+    public void testRealRuleNinthMeasurementsA() throws IOException {
+        doTest("real-rule-ninth-measurements-endpoint-A.txt", 19.977, 60.005, 60.004, 59.991, 1.0e-3, 1.0e-3);
+    }
+
+    @Test
+    public void testRealRuleNinthMeasurementsB() throws IOException {
+        doTest("real-rule-ninth-measurements-endpoint-B.txt", 20.007, 60.006, 60.003, 59.992, 1.0e-3, 1.0e-3);
+    }
+
+    @Test
     public void testInexistentFile() {
         try {
             new Prisma(findPath("prismatic-rule-60-60-60.txt").resolve("inexistent"));
@@ -190,18 +200,18 @@ public class PrismaTest {
     }
 
     @Test
-    public void testMainWithOptionsEighthA() throws IOException {
+    public void testMainWithOptionsNinthA() throws IOException {
         Prisma.main(new String[] {
             "--show-evaluations", "--residuals", "--plot",
-            findPath("real-rule-eighth-measurements-endpoint-A.txt").toString()
+            findPath("real-rule-ninth-measurements-endpoint-A.txt").toString()
         });
     }
 
     @Test
-    public void testMainWithOptionsEighthB() throws IOException {
+    public void testMainWithOptionsNinthB() throws IOException {
         Prisma.main(new String[] {
             "--show-evaluations", "--residuals", "--plot",
-            findPath("real-rule-eighth-measurements-endpoint-B.txt").toString()
+            findPath("real-rule-ninth-measurements-endpoint-B.txt").toString()
         });
     }
 
